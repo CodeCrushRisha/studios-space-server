@@ -15,12 +15,12 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8000;
-const isProduction = process.env.NODE_ENV === "production";
 
 // ---------------------------------------------------------------------------
-// CORS — allowlist enforced in production, open during development.
-// CLIENT_URL (comma-separated) is always allowed and must be the frontend
-// origin (e.g. http://localhost:3000).
+// CORS — allowlist enforced in every environment so credentialed requests
+// (HTTPOnly session cookies) are only accepted from known frontends.
+// CLIENT_URL (comma-separated) is always allowed and must include the
+// frontend origin (e.g. http://localhost:3000).
 // ---------------------------------------------------------------------------
 const allowedOrigins = new Set([
   "http://localhost:3000",
@@ -41,7 +41,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     origin(origin, callback) {
-      if (!origin || !isProduction || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin)) {
         return callback(null, true);
       }
       callback(null, false);
